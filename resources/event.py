@@ -4,8 +4,8 @@ from models.event_model import EventModel
 
 class Event(Resource):
 	parser = reqparse.RequestParser()
-	#parser.add_argument('event_timestamp', type=inputs.datetime_from_iso8601, required=True, help="This field cannot be left blank")
-	parser.add_argument('event_timestamp', type=str, required=True, help="This field cannot be left blank")
+	parser.add_argument('event_timestamp', type=inputs.datetime_from_iso8601, required=True, help="This field cannot be left blank")
+	#parser.add_argument('event_timestamp', type=str, required=True, help="This field cannot be left blank")
 	parser.add_argument('event_name', type=str, required=True, help="This field cannot be left blank")
 	parser.add_argument('user_id', type=str, required=True, help="This field cannot be left blank")
 	parser.add_argument('platform', type=str, required=True, help="This field cannot be left blank")

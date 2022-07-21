@@ -1,4 +1,5 @@
-from datetime import date, time, datetime, timezone
+from datetime import date, time, timezone
+import datetime
 import boto3, json
 
 AWS_REGION = "us-east-1"
@@ -18,15 +19,17 @@ class EventModel:
 		self.event_params = self.data["event_params"]
 		self.user_properties = self.data["user_properties"]
 
+		#Parse timestamp to GLUE
+
 	def log(self):
 		if EventModel.event_config["EVENT_DESTINATION"] == "CLOUDWATCH":
 			self.log_to_cloudwatch()
-			pass
-		
-		self.log_to_cloudwatch()
+		else: 	#default logging method 		
+			self.log_to_cloudwatch()
 
 
 	def log_to_cloudwatch(self):
+		print("log_to_cloudwatch")
 		#create resources. 
 		#need to move to __init__ for cloudwatch event logger
 		cloudwatch_resource = boto3.client('logs', region_name=AWS_REGION)
@@ -47,8 +50,14 @@ class EventModel:
 			logGroupName=LOG_GROUP,
 			logStreamNamePrefix=LOG_STREAM
 			)
-			
-		self.data['gateway_timestamp'] = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+		
+		#Parse timestamp to AWS Glue timestamp default format
+		#This is done inside the Cloudwatch logger since other loggers may not use Glue and doesnt require the conversion
+		self.data["event_timestamp"] = self.data["event_timestamp"].strftime("%Y-%m-%d %H:%M:%S")
+
+
+		#Record the timestamp in which the event was logged by the API
+		self.data['gateway_timestamp'] = datetime.datetime.now(tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
 
 		event_log = {
 			'logGroupName' : LOG_GROUP,
@@ -56,7 +65,7 @@ class EventModel:
 			'logEvents' : [
 				{
 					#'id' : str(uuid.uuid4()),
-					'timestamp': int(round(datetime.timestamp(datetime.now())*1000)),
+					'timestamp': int(round(datetime.datetime.timestamp(datetime.datetime.now())*1000)),
 					'message': json.dumps(self.data)
 				}
 			]
