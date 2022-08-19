@@ -9,7 +9,7 @@ from user import UserRegister
 
 app = Flask(__name__)
 api = Api(app)
-app.secret_key = 'jamesbondisdead'
+app.secret_key = 'enteryoursecretkeyhere'
 EventModel.event_config["EVENT_DESTINATION"] = "CLOUDWATCH"
 
 jwt = JWT(app, authenticate, identity) # /auth
